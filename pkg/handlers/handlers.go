@@ -1,3 +1,4 @@
+// Package handlers implements HTTP handlers for the Batch API endpoints.
 package handlers
 
 import (
@@ -9,18 +10,22 @@ import (
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
+
 	"github.com/pyshx/fake-batch-server/pkg/api"
 	"github.com/pyshx/fake-batch-server/pkg/storage"
 )
 
+// Handler manages HTTP handlers for the Batch API.
 type Handler struct {
 	store *storage.MemoryStore
 }
 
+// NewHandler creates a new Handler with the given storage.
 func NewHandler(store *storage.MemoryStore) *Handler {
 	return &Handler{store: store}
 }
 
+// CreateJob handles job creation requests.
 func (h *Handler) CreateJob(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	project := vars["project"]
@@ -76,6 +81,7 @@ func (h *Handler) CreateJob(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, &job)
 }
 
+// GetJob retrieves a specific job by ID.
 func (h *Handler) GetJob(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	project := vars["project"]
@@ -93,6 +99,7 @@ func (h *Handler) GetJob(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, job)
 }
 
+// ListJobs returns all jobs for a project and location.
 func (h *Handler) ListJobs(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	project := vars["project"]
@@ -111,6 +118,7 @@ func (h *Handler) ListJobs(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, response)
 }
 
+// DeleteJob marks a job for deletion.
 func (h *Handler) DeleteJob(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	project := vars["project"]
@@ -141,9 +149,12 @@ func (h *Handler) DeleteJob(w http.ResponseWriter, r *http.Request) {
 
 	logrus.Infof("Deleting job: %s", jobName)
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(`{}`))
+	if _, err := w.Write([]byte(`{}`)); err != nil {
+		logrus.Errorf("Failed to write response: %v", err)
+	}
 }
 
+// ListTasks returns all tasks for a specific job.
 func (h *Handler) ListTasks(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	project := vars["project"]
@@ -165,6 +176,7 @@ func (h *Handler) ListTasks(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, response)
 }
 
+// GetTask retrieves a specific task by ID.
 func (h *Handler) GetTask(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	project := vars["project"]
@@ -263,7 +275,10 @@ func writeError(w http.ResponseWriter, status int, format string, args ...interf
 	message := fmt.Sprintf(format, args...)
 	logrus.Error(message)
 	w.WriteHeader(status)
-	json.NewEncoder(w).Encode(map[string]string{
+	if err := json.NewEncoder(w).Encode(map[string]string{
 		"error": message,
-	})
+	}); err != nil {
+		logrus.Errorf("Failed to encode error response: %v", err)
+	}
 }
+

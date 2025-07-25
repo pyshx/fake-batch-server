@@ -31,3 +31,4 @@ kill $SERVER_PID
 wait $SERVER_PID 2>/dev/null || true
 
 echo -e "\nAll tests completed successfully!"
+

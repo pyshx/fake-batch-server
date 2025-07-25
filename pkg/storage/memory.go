@@ -1,3 +1,4 @@
+// Package storage provides storage implementations for jobs and tasks.
 package storage
 
 import (
@@ -8,12 +9,14 @@ import (
 	"github.com/pyshx/fake-batch-server/pkg/api"
 )
 
+// MemoryStore provides an in-memory storage implementation for jobs and tasks.
 type MemoryStore struct {
 	mu    sync.RWMutex
 	jobs  map[string]*api.Job
 	tasks map[string]map[string]*api.Task
 }
 
+// NewMemoryStore creates a new in-memory storage instance.
 func NewMemoryStore() *MemoryStore {
 	return &MemoryStore{
 		jobs:  make(map[string]*api.Job),
@@ -21,6 +24,7 @@ func NewMemoryStore() *MemoryStore {
 	}
 }
 
+// CreateJob stores a new job and creates associated tasks.
 func (s *MemoryStore) CreateJob(job *api.Job) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -55,6 +59,7 @@ func (s *MemoryStore) CreateJob(job *api.Job) error {
 	return nil
 }
 
+// GetJob retrieves a job by name.
 func (s *MemoryStore) GetJob(name string) (*api.Job, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -67,6 +72,7 @@ func (s *MemoryStore) GetJob(name string) (*api.Job, error) {
 	return job, nil
 }
 
+// ListJobs returns all jobs for a specific project and location.
 func (s *MemoryStore) ListJobs(project, location string) ([]*api.Job, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -83,6 +89,7 @@ func (s *MemoryStore) ListJobs(project, location string) ([]*api.Job, error) {
 	return jobs, nil
 }
 
+// UpdateJob updates an existing job.
 func (s *MemoryStore) UpdateJob(job *api.Job) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -97,6 +104,7 @@ func (s *MemoryStore) UpdateJob(job *api.Job) error {
 	return nil
 }
 
+// DeleteJob removes a job and all its tasks.
 func (s *MemoryStore) DeleteJob(name string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -111,6 +119,7 @@ func (s *MemoryStore) DeleteJob(name string) error {
 	return nil
 }
 
+// GetTask retrieves a specific task from a job.
 func (s *MemoryStore) GetTask(jobName, taskName string) (*api.Task, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -128,6 +137,7 @@ func (s *MemoryStore) GetTask(jobName, taskName string) (*api.Task, error) {
 	return task, nil
 }
 
+// ListTasks returns all tasks for a specific job.
 func (s *MemoryStore) ListTasks(jobName string) ([]*api.Task, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -145,6 +155,7 @@ func (s *MemoryStore) ListTasks(jobName string) ([]*api.Task, error) {
 	return tasks, nil
 }
 
+// UpdateTask updates a specific task within a job.
 func (s *MemoryStore) UpdateTask(jobName string, task *api.Task) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -162,3 +173,4 @@ func (s *MemoryStore) UpdateTask(jobName string, task *api.Task) error {
 
 	return nil
 }
+

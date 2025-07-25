@@ -13,6 +13,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+
 	"github.com/pyshx/fake-batch-server/pkg/handlers"
 	"github.com/pyshx/fake-batch-server/pkg/storage"
 )
@@ -132,5 +133,8 @@ func contentTypeMiddleware(next http.Handler) http.Handler {
 
 func healthCheck(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(`{"status":"healthy"}`))
+	if _, err := w.Write([]byte(`{"status":"healthy"}`)); err != nil {
+		logrus.Errorf("Failed to write health check response: %v", err)
+	}
 }
+

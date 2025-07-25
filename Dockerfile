@@ -19,3 +19,4 @@ COPY --from=builder /app/fake-batch-server .
 EXPOSE 8080
 
 CMD ["./fake-batch-server"]
+
