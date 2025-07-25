@@ -1,0 +1,7 @@
+.git
+.gitignore
+*.md
+test/
+scripts/
+.DS_Store
+fake-batch-server
